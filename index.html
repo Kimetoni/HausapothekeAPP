@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hausapotheke</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --teal: #2ab3a3;
+            --teal-dark: #1d8f81;
+            --teal-deep: #1a6b60;
+            --teal-light: #e6f7f5;
+            --teal-mid: #b2e4df;
+            --cream: #f7f9f8;
+            --card: #ffffff;
+            --text: #1d4740;
+            --text-muted: #6b8880;
+            --danger: #e05252;
+            --warn: #e8943a;
+            --success: #2db88a;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #dce8e6; }
+        ::-webkit-scrollbar { display: none; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeUp 0.28s ease forwards; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-menu { transform-origin: top; transition: opacity 0.18s ease, transform 0.18s ease; }
+        .dropdown-hidden { opacity: 0; transform: scaleY(0.93) translateY(-4px); pointer-events: none; }
+        .dropdown-visible { opacity: 1; transform: scaleY(1) translateY(0); pointer-events: auto; }
+
+        .plan-tab-active { background: white; color: var(--teal-dark); box-shadow: 0 1px 6px rgba(0,0,0,0.1); font-weight: 600; }
+        .plan-tab-inactive { background: transparent; color: var(--text-muted); font-weight: 500; }
+
+        .med-card {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+            border: 1.5px solid rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .med-card:hover { box-shadow: 0 4px 20px rgba(26,158,143,0.12); transform: translateY(-1px); }
+        .med-card.expired { background: #fff8f8; border-color: rgba(224,82,82,0.2); }
+        .med-card.warning { background: #fffbf5; border-color: rgba(232,148,58,0.25); }
+
+        .pill-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 7px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+            transition: all 0.18s ease; cursor: pointer; border: none;
+        }
+        .pill-btn:hover { filter: brightness(0.93); transform: translateY(-1px); }
+
+        .check-anim { transition: all 0.25s ease; }
+
+        .badge {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+            padding: 3px 10px; border-radius: 20px; text-transform: uppercase;
+        }
+
+        .filter-chip {
+            padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            white-space: nowrap; border: none; cursor: pointer; transition: all 0.18s ease;
+        }
+        .filter-chip.active { background: var(--teal); color: white; box-shadow: 0 2px 8px rgba(26,158,143,0.3); }
+        .filter-chip.inactive { background: rgba(255,255,255,0.3); color: rgba(255,255,255,0.9); }
+        .filter-chip.inactive:hover { background: rgba(255,255,255,0.45); }
+
+        .nav-btn { display: flex; flex-direction: column; align-items: center; padding: 6px 0; width: 25%; border: none; background: none; cursor: pointer; transition: all 0.2s ease; }
+        .nav-btn.active .nav-icon { color: var(--teal); }
+        .nav-btn.active .nav-label { color: var(--teal); font-weight: 700; }
+        .nav-btn .nav-icon { color: #b0c4c0; transition: color 0.2s; }
+        .nav-btn .nav-label { font-size: 10px; font-weight: 600; color: #b0c4c0; margin-top: 3px; transition: color 0.2s; }
+
+        .header-bg {
+            background: linear-gradient(145deg, #1a6b60 0%, #2ab3a3 100%);
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .profile-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 20px;
+            padding: 5px 12px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+            cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px);
+        }
+        .profile-btn:hover { background: rgba(255,255,255,0.25); }
+
+        .share-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 50%;
+            width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px);
+        }
+        .share-btn:hover { background: rgba(255,255,255,0.28); }
+
+        .search-bar {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.25);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            color: white;
+        }
+        .search-bar::placeholder { color: rgba(255,255,255,0.6); }
+        .search-bar:focus { outline: none; background: rgba(255,255,255,0.25); }
+
+        .fab {
+            position: absolute; bottom: 88px; right: 20px;
+            width: 52px; height: 52px; border-radius: 16px;
+            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+            box-shadow: 0 4px 20px rgba(26,158,143,0.45);
+            color: white; font-size: 26px; font-weight: 300;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease; z-index: 20; border: none;
+        }
+        .fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 8px 28px rgba(26,158,143,0.5); }
+
+        .form-slide {
+            position: absolute; bottom: 0; width: 100%;
+            height: 90%; background: white;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -12px 50px rgba(0,0,0,0.18);
+            padding: 24px; transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 40; display: flex; flex-direction: column;
+        }
+        .form-slide.open { transform: translateY(0); }
+
+        .form-input {
+            width: 100%; padding: 12px 16px;
+            border: 1.5px solid #e5eded; border-radius: 12px;
+            background: var(--cream); font-size: 14px; font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        .form-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,158,143,0.12); }
+
+        .modal-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: flex-end; justify-content: center;
+            z-index: 50; backdrop-filter: blur(3px);
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-card {
+            background: white; width: 100%;
+            border-radius: 28px 28px 0 0;
+            padding: 28px 24px 36px;
+            max-height: 80%; overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-handle {
+            width: 40px; height: 4px; border-radius: 2px;
+            background: #e0e0e0; margin: 0 auto 20px; display: block;
+        }
+
+        .plan-card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+
+        .network-card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; overflow: hidden; position: relative; }
+
+        .teal-btn { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); color: white; border: none; padding: 13px; border-radius: 13px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; width: 100%; box-shadow: 0 3px 12px rgba(26,158,143,0.3); }
+        .teal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,158,143,0.4); }
+
+        .section-title { font-family: 'DM Sans', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); margin-bottom: 4px; letter-spacing: -0.2px; }
+
+        .check-circle { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #d0d8d6; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s; background: white; color: transparent; font-size: 16px; font-weight: 700; }
+        .check-circle:hover { border-color: var(--teal); background: var(--teal-light); }
+        .check-circle.checked { background: var(--success); border-color: var(--success); color: white; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+<div style="background: #dce8e6; min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+
+    <!-- Phone Shell -->
+    <div style="width: 100%; max-width: 390px; height: 780px; background: var(--cream); border-radius: 48px; border: 12px solid #1a1a1a; box-shadow: 0 40px 80px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1); position: relative; overflow: hidden; display: flex; flex-direction: column;">
+
+        <!-- Header -->
+        <div class="header-bg" style="padding: 20px 20px 14px; border-radius: 0 0 26px 26px; box-shadow: 0 4px 20px rgba(13,92,83,0.3); z-index: 30; position: relative;">
+            
+            <!-- Top Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                
+                <!-- Logo + Name -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Logo: solid house silhouette + white cross, no door -->
+                    <svg width="36" height="36" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Solid house: roof triangle + rectangular body, fully filled, no cutout -->
+                        <path d="M28 6 L52 26 L52 50 Q52 52 50 52 L6 52 Q4 52 4 50 L4 26 Z" fill="#2ab3a3"/>
+                        <!-- White cross centered in the house body -->
+                        <rect x="24.5" y="28" width="7" height="16" rx="2" fill="white"/>
+                        <rect x="20" y="32.5" width="16" height="7" rx="2" fill="white"/>
+                    </svg>
+                    <span style="font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.2px;">Hausapotheke</span>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="share-btn" onclick="showModal('Hausapotheke teilen', 'Sende diesen Link an Familienmitglieder:<br><br><input type=\'text\' value=\'https://hausapo.app/invite/x7f9a\' style=\'width:100%;padding:12px;border-radius:10px;border:1.5px solid #e5eded;background:#f7f9f8;font-size:13px;outline:none;\' readonly><br><button style=\'width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#1a9e8f,#147a6e);color:white;border-radius:12px;font-weight:700;border:none;cursor:pointer;\'>Link kopieren</button>')">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    </button>
+
+                    <div style="position: relative;" id="profileContainer">
+                        <button class="profile-btn" onclick="toggleProfileDropdown(event)">
+                            <span id="activeProfile">Ich</span>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="profileDropdown" class="dropdown-menu dropdown-hidden" style="position:absolute;right:0;top:calc(100% + 8px);width:180px;background:white;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);padding:8px;z-index:50;">
+                            <button onclick="selectProfile('Mein Profil')" style="width:100%;text-align:left;padding:9px 12px;border-radius:10px;font-size:13px;color:#1a2e2b;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">Mein Profil</button>
+                            <button onclick="selectProfile('Oma Erna')" style="width:100%;text-align:left;padding:9px 12px;border-radius:10px;font-size:13px;color:#1a2e2b;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">Oma Erna</button>
+                            <div style="height:1px;background:#f0f0f0;margin:6px 0;"></div>
+                            <button onclick="showModal('Profil hinzufügen', 'Lege ein neues Familienmitglied an.')" style="width:100%;text-align:left;padding:9px 12px;border-radius:10px;font-size:13px;color:var(--teal);font-weight:700;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">+ Neues Profil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search + Filters -->
+            <div id="searchContainer" style="overflow:hidden;transition:all 0.3s ease;max-height:120px;opacity:1;">
+                <div style="position:relative;margin-bottom:10px;">
+                    <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:rgba(255,255,255,0.6);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="searchInput" onkeyup="filterMeds()" placeholder="Symptom oder Name suchen…" class="search-bar" style="width:100%;padding:10px 12px 10px 36px;font-size:13px;font-family:'DM Sans',sans-serif;">
+                </div>
+                <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;">
+                    <button id="filterAll" onclick="setFilter('all')" class="filter-chip active" style="display:inline-flex;align-items:center;gap:5px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        Alle
+                    </button>
+                    <button id="filterExpired" onclick="setFilter('expired')" class="filter-chip inactive" style="display:inline-flex;align-items:center;gap:5px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor" stroke="none"/></svg>
+                        Abgelaufen
+                    </button>
+                    <button id="filterBasis" onclick="setFilter('basis')" class="filter-chip inactive" style="display:inline-flex;align-items:center;gap:5px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Basis-Apo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div style="flex:1;overflow-y:auto;padding:16px 16px 84px;background:var(--cream);z-index:10;position:relative;">
+
+            <!-- TAB: SCHRANK -->
+            <div id="tab-schrank" class="tab-content active">
+                <div id="medList"></div>
+            </div>
+
+            <!-- TAB: PLAN -->
+            <div id="tab-plan" class="tab-content">
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
+                    <div>
+                        <div style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.2px;color:var(--text);margin-bottom:4px;">Medikationsplan</div>
+                        <p id="currentDayDisplay" style="color:var(--teal);font-size:13px;font-weight:600;"></p>
+                    </div>
+                    <button onclick="showModal('Eintrag hinzufügen', 'Medikament manuell zum Plan hinzufügen:<br><br><input type=\'text\' placeholder=\'z.B. Magnesium\' style=\'width:100%;padding:12px;border:1.5px solid #e5eded;border-radius:12px;margin-top:8px;font-size:14px;outline:none;\'><br><div style=\'display:flex;gap:8px;margin-top:8px;\'><input type=\'time\' style=\'flex:1;padding:12px;border:1.5px solid #e5eded;border-radius:12px;outline:none;\'><select style=\'flex:1;padding:12px;border:1.5px solid #e5eded;border-radius:12px;outline:none;\'><option>Täglich</option><option>Wöchentlich</option></select></div><button style=\'width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,#1a9e8f,#147a6e);color:white;border-radius:13px;font-weight:700;border:none;cursor:pointer;\'>Speichern</button>')" style="background:var(--teal-light);color:var(--teal-dark);padding:7px 13px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        Hinzufügen
+                    </button>
+                </div>
+
+                <div style="display:flex;background:#ececec;padding:4px;border-radius:13px;margin-bottom:16px;">
+                    <button id="btnDayView" onclick="togglePlanView('day')" class="plan-tab-active" style="flex:1;padding:7px;border-radius:10px;font-size:13px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;">Tagesansicht</button>
+                    <button id="btnWeekView" onclick="togglePlanView('week')" class="plan-tab-inactive" style="flex:1;padding:7px;border-radius:10px;font-size:13px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;">Wochenübersicht</button>
+                </div>
+
+                <div id="planDayView">
+                    <div class="plan-card">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:#9b59b6;"></div>
+                            <span style="font-size:12px;font-weight:700;color:#9b59b6;text-transform:uppercase;letter-spacing:0.05em;">Einmal wöchentlich · Heute</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#f9f5ff;padding:14px;border-radius:13px;">
+                            <div>
+                                <div style="font-weight:700;color:var(--text);font-size:15px;">Vitamin D3 20.000 IE</div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">1 Kapsel · Zum Essen</div>
+                            </div>
+                            <button onclick="checkPill(this, 'Vitamin D3')" class="check-circle">✔</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-card">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:var(--warn);"></div>
+                            <span style="font-size:12px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.05em;">Morgen · 08:00 Uhr</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #f0f0f0;">
+                            <div>
+                                <div style="font-weight:700;color:var(--text);font-size:15px;">L-Thyroxin 50µg</div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">1 Tablette · Nüchtern</div>
+                            </div>
+                            <button onclick="checkPill(this, 'L-Thyroxin')" class="check-circle">✔</button>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="font-weight:700;color:var(--text);font-size:15px;">Ramipril 5mg</div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">1 Tablette · Blutdrucksenker</div>
+                            </div>
+                            <button onclick="checkPill(this, 'Ramipril')" class="check-circle">✔</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="planWeekView" style="display:none;">
+                    <div class="plan-card">
+                        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">Mo</div>
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">Di</div>
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">Mi</div>
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">Do</div>
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">Fr</div>
+                            <div style="font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-light);border-radius:6px;padding:2px 0;">Sa</div>
+                            <div style="font-size:10px;font-weight:700;color:#b0c4c0;">So</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <span style="font-size:12px;font-weight:600;color:var(--text);width:35%;">L-Thyroxin</span>
+                                <div style="display:flex;gap:6px;font-size:12px;color:var(--success);">✔✔✔✔✔<span style="color:#e0e0e0;">○○</span></div>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <span style="font-size:12px;font-weight:600;color:var(--text);width:35%;">Ramipril</span>
+                                <div style="display:flex;gap:6px;font-size:12px;color:var(--success);">✔✔✔✔✔<span style="color:#e0e0e0;">○○</span></div>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f5f5f5;">
+                                <span style="font-size:12px;font-weight:600;color:var(--text);width:35%;">Vitamin D3</span>
+                                <div style="display:flex;gap:6px;font-size:12px;">
+                                    <span style="color:#e5e5e5;">-</span><span style="color:#e5e5e5;">-</span><span style="color:#e5e5e5;">-</span><span style="color:#e5e5e5;">-</span><span style="color:#e5e5e5;">-</span><span style="color:#b0c4c0;">○</span><span style="color:#e5e5e5;">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: NETZWERK -->
+            <div id="tab-netzwerk" class="tab-content">
+                <div class="section-title" style="margin-bottom:4px;">Arzt & Apotheke</div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Deine medizinischen Kontakte</p>
+
+                <div class="network-card">
+                    <div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-size:10px;font-weight:800;padding:5px 12px;border-radius:0 0 0 12px;letter-spacing:0.06em;">NEU</div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#eff6ff;display:flex;align-items:center;justify-content:center;">
+                            <svg width="20" height="20" fill="none" stroke="#3b82f6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:#1e40af;font-size:15px;">E-Rezept Postfach</div>
+                            <div style="font-size:12px;color:#64748b;margin-top:1px;">Von Dr. Müller</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Neues Folgerezept für <strong style="color:var(--text);">Ramipril</strong> erhalten und bereit zur Einlösung.</p>
+                    <button onclick="showModal('E-Rezept einlösen', 'Rezept erfolgreich an deine Stamm-Apotheke gesendet. ✅')" class="teal-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 3px 12px rgba(59,130,246,0.3);">Jetzt einlösen</button>
+                </div>
+            </div>
+
+            <!-- TAB: BESTELLUNG -->
+            <div id="tab-bestellung" class="tab-content">
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;">
+                    <div>
+                        <div class="section-title">Bestellliste</div>
+                        <p id="orderSubtitle" style="font-size:13px;color:var(--text-muted);margin-top:2px;">0 Artikel</p>
+                    </div>
+                    <button onclick="clearOrderList()" id="clearOrderBtn" style="display:none;background:#fef2f2;color:#dc2626;padding:7px 13px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;display:none;align-items:center;gap:4px;">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Alle löschen
+                    </button>
+                </div>
+
+                <!-- Empty state -->
+                <div id="orderEmpty" style="text-align:center;padding:48px 24px;">
+                    <div style="width:64px;height:64px;background:var(--teal-light);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <svg width="30" height="30" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    </div>
+                    <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">Noch nichts hier</div>
+                    <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">Füge Medikamente über den «Bestellen»-Button auf einer Karte zur Liste hinzu.</div>
+                </div>
+
+                <!-- Order items list -->
+                <div id="orderList"></div>
+
+                <!-- Send to pharmacy button -->
+                <div id="orderActions" style="display:none;margin-top:8px;">
+                    <button onclick="sendToPharmacy()" class="teal-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        An Apotheke senden
+                    </button>
+                    <p style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px;">Liste wird an deine Stamm-Apotheke übermittelt</p>
+                </div>
+            </div>
+
+            <!-- TAB: ASSISTENZ -->
+            <div id="tab-assistenz" class="tab-content">
+                <div class="section-title" style="margin-bottom:4px;">Smart Assistenz</div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Reise-Check & Analyse</p>
+
+                <div class="plan-card">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                        <div style="width:40px;height:40px;border-radius:12px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="20" height="20" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:var(--text);font-size:15px;">Reise-Check</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Prüft deine Apotheke auf Vollständigkeit</div>
+                        </div>
+                    </div>
+
+                    <div style="position:relative;margin:16px 0;" id="travelContainer">
+                        <button onclick="toggleTravelDropdown(event)" style="width:100%;text-align:left;padding:12px 16px;border:1.5px solid #e5eded;border-radius:13px;background:var(--cream);font-size:13px;font-family:'DM Sans',sans-serif;display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--text);font-weight:500;">
+                            <span id="activeTravelDest">🌴 Tropen & Malaria-Gebiete</span>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="travelDropdown" class="dropdown-menu dropdown-hidden" style="position:absolute;left:0;right:0;top:calc(100%+6px);background:white;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.12);border:1px solid rgba(0,0,0,0.06);padding:6px;z-index:50;margin-top:6px;">
+                            <button onclick="selectTravel('tropics','🌴 Tropen & Malaria-Gebiete')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">🌴 Tropen & Malaria-Gebiete</button>
+                            <button onclick="selectTravel('beach','☀️ Mittelmeer & Strandurlaub')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">☀️ Mittelmeer & Strandurlaub</button>
+                            <button onclick="selectTravel('mountains','⛰️ Hochgebirge & Trekking')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">⛰️ Hochgebirge & Trekking</button>
+                            <button onclick="selectTravel('camping','🏕️ Camping & Outdoor')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">🏕️ Camping & Outdoor</button>
+                            <button onclick="selectTravel('cruise','🚢 Kreuzfahrt')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">🚢 Kreuzfahrt</button>
+                            <button onclick="selectTravel('city','🏙️ Städtetrip')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">🏙️ Städtetrip</button>
+                        </div>
+                    </div>
+                    <button onclick="runTravelCheck()" class="teal-btn">Packliste prüfen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB -->
+        <button id="fabBtn" class="fab" onclick="toggleForm()">+</button>
+
+        <!-- Add Form -->
+        <div id="addForm" class="form-slide">
+            <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 20px;"></div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:21px;font-weight:700;letter-spacing:-0.2px;color:var(--text);margin-bottom:18px;">Neues Medikament</div>
+            
+            <button onclick="simulateScanner()" style="width:100%;background:#1a2e2b;color:white;padding:13px;border-radius:13px;margin-bottom:14px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                Barcode scannen
+            </button>
+            
+            <div style="display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;">
+                <input type="text" id="medName" placeholder="Name (z.B. Ibuprofen)" class="form-input">
+                <input type="text" id="medTags" placeholder="Symptom (z.B. Kopfschmerz)" class="form-input">
+                <div style="display:flex;gap:10px;">
+                    <input type="number" id="medCount" placeholder="Stückzahl" class="form-input" style="width:40%;">
+                    <input type="date" id="medDate" class="form-input" style="flex:1;">
+                </div>
+            </div>
+            
+            <div style="display:flex;gap:10px;margin-top:16px;">
+                <button onclick="addMed()" class="teal-btn" style="flex:1;">Speichern</button>
+                <button onclick="toggleForm()" style="flex:1;padding:13px;background:#f0f0f0;color:var(--text);border-radius:13px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <span class="modal-handle"></span>
+                <h2 id="modalTitle" style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.2px;color:var(--text);margin-bottom:12px;"></h2>
+                <div id="modalContent" style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:20px;"></div>
+                <button onclick="closeModal()" class="teal-btn">Schließen</button>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div style="position:absolute;bottom:0;width:100%;background:white;border-top:1px solid #f0f0f0;display:flex;justify-content:space-around;padding:8px 0 14px;box-shadow:0 -4px 20px rgba(0,0,0,0.05);z-index:20;">
+            <button class="nav-btn active" onclick="switchTab('schrank')" id="nav-schrank">
+                <svg class="nav-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span class="nav-label">Schrank</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('plan')" id="nav-plan">
+                <svg class="nav-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span class="nav-label">Plan</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('bestellung')" id="nav-bestellung" style="position:relative;">
+                <div style="position:relative;display:inline-block;">
+                    <svg class="nav-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span id="orderBadge" style="display:none;position:absolute;top:-5px;right:-7px;background:#dc2626;color:white;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;line-height:1;">0</span>
+                </div>
+                <span class="nav-label">Bestellen</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('netzwerk')" id="nav-netzwerk">
+                <svg class="nav-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="nav-label">Apotheke</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('assistenz')" id="nav-assistenz">
+                <svg class="nav-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span class="nav-label">Assistenz</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const tage = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+    document.getElementById('currentDayDisplay').innerText = `Heute ist ${tage[new Date().getDay()]}`;
+
+    let currentFilter = 'all';
+
+    function toggleProfileDropdown(e) { if(e) e.stopPropagation(); closeTravelDropdown(); document.getElementById('profileDropdown').classList.toggle('dropdown-hidden'); document.getElementById('profileDropdown').classList.toggle('dropdown-visible'); }
+    function closeProfileDropdown() { const dp = document.getElementById('profileDropdown'); if(dp){dp.classList.add('dropdown-hidden');dp.classList.remove('dropdown-visible');} }
+    function selectProfile(name) { document.getElementById('activeProfile').innerText = name; closeProfileDropdown(); }
+
+    let selectedTravelDest = 'tropics';
+    function toggleTravelDropdown(e) { if(e) e.stopPropagation(); closeProfileDropdown(); document.getElementById('travelDropdown').classList.toggle('dropdown-hidden'); document.getElementById('travelDropdown').classList.toggle('dropdown-visible'); }
+    function closeTravelDropdown() { const dp = document.getElementById('travelDropdown'); if(dp){dp.classList.add('dropdown-hidden');dp.classList.remove('dropdown-visible');} }
+    function selectTravel(value, text) { selectedTravelDest = value; document.getElementById('activeTravelDest').innerText = text; closeTravelDropdown(); }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#profileContainer')) closeProfileDropdown();
+        if (!e.target.closest('#travelContainer')) closeTravelDropdown();
+    });
+
+    function togglePlanView(view) {
+        const btnDay = document.getElementById('btnDayView');
+        const btnWeek = document.getElementById('btnWeekView');
+        const viewDay = document.getElementById('planDayView');
+        const viewWeek = document.getElementById('planWeekView');
+        if(view === 'day') {
+            btnDay.className = 'plan-tab-active';
+            btnWeek.className = 'plan-tab-inactive';
+            viewDay.style.display = 'block';
+            viewWeek.style.display = 'none';
+        } else {
+            btnWeek.className = 'plan-tab-active';
+            btnDay.className = 'plan-tab-inactive';
+            viewWeek.style.display = 'block';
+            viewDay.style.display = 'none';
+        }
+    }
+
+    function runTravelCheck() {
+        const configs = {
+            tropics: { title: '🌴 Packliste: Tropen', items: ['Mückenspray (mind. 50% DEET)','Malaria-Prophylaxe','Mittel gegen Reisedurchfall (Loperamid)','Elektrolyte','Breitband-Antibiotikum (nach Arztabsprache)'] },
+            beach:   { title: '☀️ Packliste: Strandurlaub', items: ['Sonnencreme (LSF 50)','After-Sun Gel / Bepanthen','Pflaster & wasserfeste Verbände','Ohrtropfen (Taucher-Ohr)'] },
+            mountains: { title: '⛰️ Packliste: Hochgebirge', items: ['Blasenpflaster','Schmerz- & Sportgel (Diclofenac)','Rettungsdecke & Erste-Hilfe-Set','Lippenschutz UV-Filter'] },
+            camping: { title: '🏕️ Packliste: Camping', items: ['Zeckenzange','Starkes Insektenspray','Wunddesinfektion (Octenisept)','Mittel gegen Insektenstiche (Fenistil)'] },
+            cruise:  { title: '🚢 Packliste: Kreuzfahrt', items: ['Mittel gegen Seekrankheit','Magen-Darm-Beruhigung','Sonnenschutz'] },
+            city:    { title: '🏙️ Packliste: Städtetrip', items: ['Kopfschmerztabletten (Ibuprofen)','Blasenpflaster','Desinfektionstücher'] }
+        };
+        const cfg = configs[selectedTravelDest];
+        const listItems = cfg.items.map(i => `<li style="padding:6px 0;border-bottom:1px solid #f5f5f5;color:#1a2e2b;font-weight:500;">${i}</li>`).join('');
+        const content = `<p style="margin-bottom:12px;color:#6b8880;">Für dein Reiseziel fehlen noch folgende Dinge:</p><ul style="list-style:none;padding:0;margin-bottom:16px;">${listItems}</ul><button style="width:100%;padding:13px;background:linear-gradient(135deg,#1a9e8f,#147a6e);color:white;border-radius:13px;font-weight:700;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;">In Apotheke bestellen</button>`;
+        showModal(cfg.title, content);
+    }
+
+    const compendiumDB = {
+        "ibuprofen": { wirkstoff: "Ibuprofen", indikation: "Leichte bis mäßig starke Schmerzen, Fieber.", dosierung: "Erwachsene: 1 Tablette (400mg) als Einzeldosis.", hinweis: "Nach einer Mahlzeit einnehmen, um den Magen zu schonen." },
+        "thyroxin": { wirkstoff: "Levothyroxin-Natrium", indikation: "Schilddrüsenunterfunktion.", dosierung: "Erwachsene: 1 Tablette täglich.", hinweis: "Nüchtern, 30 Minuten vor dem Frühstück einnehmen." },
+        "nasenspray": { wirkstoff: "Xylometazolin", indikation: "Schnupfen, Abschwellung der Nasenschleimhaut.", dosierung: "Bis zu 3-mal täglich 1 Sprühstoß.", hinweis: "Maximal 5–7 Tage anwenden (Gewöhnungseffekt)." },
+        "octenisept": { wirkstoff: "Octenidindihydrochlorid", indikation: "Antiseptische Wundbehandlung.", dosierung: "Auf die Fläche sprühen.", hinweis: "Nicht tief ins Gewebe spülen." },
+        "bepanthen": { wirkstoff: "Dexpanthenol", indikation: "Wundheilung bei leichten Hautverletzungen.", dosierung: "Ein- bis mehrmals täglich auftragen.", hinweis: "Kontakt mit den Augen vermeiden." },
+        "cetirizin": { wirkstoff: "Cetirizindihydrochlorid", indikation: "Allergien, Heuschnupfen.", dosierung: "Erwachsene: 1 Filmtablette täglich.", hinweis: "Kann Müdigkeit verursachen. Abends einnehmen." },
+        "kohletabletten": { wirkstoff: "Medizinische Kohle", indikation: "Durchfallerkrankungen, Vergiftungen.", dosierung: "3–4 Tabletten mehrmals täglich.", hinweis: "Kann die Wirkung anderer Medikamente verringern." },
+        "aspirin": { wirkstoff: "Acetylsalicylsäure (ASS)", indikation: "Erkältungsschmerzen, Kopfschmerzen.", dosierung: "1–2 Tabletten als Einzeldosis.", hinweis: "Nicht bei Magen-Darm-Geschwüren anwenden." }
+    };
+
+    function showBeipackzettel(medName) {
+        let searchKey = Object.keys(compendiumDB).find(k => medName.toLowerCase().includes(k));
+        let data = searchKey ? compendiumDB[searchKey] : { wirkstoff: "Wird geladen…", indikation: "Über Compendium abrufbar.", dosierung: "Bitte ärztliche Verordnung beachten.", hinweis: "Keine spezifischen Warnhinweise." };
+        let content = `
+            <div style="background:#eff6ff;padding:14px;border-radius:12px;margin-bottom:14px;border:1px solid #dbeafe;">
+                <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Wirkstoff</div>
+                <div style="font-weight:700;color:#1a2e2b;">${data.wirkstoff}</div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <div style="font-size:10px;font-weight:800;color:#b0c4c0;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Indikation</div>
+                <div style="font-size:14px;color:#4a5e58;line-height:1.5;">${data.indikation}</div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <div style="font-size:10px;font-weight:800;color:#b0c4c0;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Dosierung</div>
+                <div style="font-size:14px;color:#4a5e58;line-height:1.5;">${data.dosierung}</div>
+            </div>
+            <div style="background:#fff7ed;padding:14px;border-radius:12px;border:1px solid #fed7aa;">
+                <div style="font-size:10px;font-weight:800;color:#c2410c;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Hinweis</div>
+                <div style="font-size:14px;color:#7c2d12;font-weight:500;">${data.hinweis}</div>
+            </div>`;
+        showModal(medName, content);
+    }
+
+    let medications = [
+        { id: 1, name: "Ibuprofen 400mg", tags: "Kopfschmerz Fieber Schmerz", count: 12, expiry: "2027-10-15", mustHave: true },
+        { id: 2, name: "L-Thyroxin 50µg", tags: "Schilddrüse", count: 4, expiry: "2028-01-10", mustHave: false },
+        { id: 3, name: "Nasenspray Ratiopharm", tags: "Nase Schnupfen", count: 1, expiry: "2023-11-20", mustHave: true },
+        { id: 4, name: "Octenisept Desinfektion", tags: "Wunde Desinfektion", count: 1, expiry: "2029-05-01", mustHave: true },
+        { id: 5, name: "Bepanthen Wundsalbe", tags: "Wunde Haut", count: 1, expiry: "2027-08-12", mustHave: true },
+        { id: 6, name: "Cetirizin", tags: "Allergie Heuschnupfen", count: 20, expiry: "2026-04-01", mustHave: false },
+        { id: 7, name: "Kohletabletten", tags: "Durchfall Magen", count: 30, expiry: "2024-05-01", mustHave: true },
+        { id: 8, name: "Aspirin Complex", tags: "Erkältung", count: 5, expiry: "2025-10-10", mustHave: false }
+    ];
+
+    function getStatus(expiryDate) {
+        const today = new Date();
+        const exp = new Date(expiryDate);
+        const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return { cardClass: 'expired', labelBg: '#fef2f2', labelColor: '#dc2626', label: 'Abgelaufen' };
+        if (diffDays < 90) return { cardClass: 'warning', labelBg: '#fff7ed', labelColor: '#ea580c', label: 'Läuft bald ab' };
+        return { cardClass: '', labelBg: '#f0faf8', labelColor: 'var(--teal-dark)', label: 'Haltbar' };
+    }
+
+    function setFilter(filterType) {
+        currentFilter = filterType;
+        ['All','Expired','Basis'].forEach(f => {
+            const el = document.getElementById('filter' + f);
+            el.className = 'filter-chip ' + (filterType === f.toLowerCase() ? 'active' : 'inactive');
+        });
+        renderList(document.getElementById('searchInput').value);
+    }
+
+    function renderList(filterText = "") {
+        const listEl = document.getElementById('medList');
+        listEl.innerHTML = '';
+
+        let filteredMeds = medications.filter(med =>
+            med.name.toLowerCase().includes(filterText.toLowerCase()) ||
+            med.tags.toLowerCase().includes(filterText.toLowerCase())
+        );
+        if (currentFilter === 'expired') filteredMeds = filteredMeds.filter(m => getStatus(m.expiry).label === 'Abgelaufen');
+        else if (currentFilter === 'basis') filteredMeds = filteredMeds.filter(m => m.mustHave);
+        filteredMeds.sort((a, b) => (a.mustHave === b.mustHave ? 0 : a.mustHave ? -1 : 1));
+
+        filteredMeds.forEach(med => {
+            const status = getStatus(med.expiry);
+            const isExpired = status.label === 'Abgelaufen';
+            const isLow = med.count < 5;
+
+            const card = document.createElement('div');
+            card.className = `med-card ${status.cardClass}`;
+
+            let countStyle = isLow && !isExpired
+                ? 'color:#ea580c;font-weight:700;background:#fff7ed;padding:2px 8px;border-radius:8px;'
+                : 'color:var(--text-muted);';
+
+            const inOrder = orderList.some(o => o.id === med.id);
+            const orderBtnStyle = inOrder
+                ? 'background:var(--teal);color:white;border:1.5px solid var(--teal);'
+                : 'background:#f0faf8;color:var(--teal-dark);border:1.5px solid var(--teal-mid);';
+            const orderBtnLabel = inOrder
+                ? `<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Vorgemerkt`
+                : `<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Bestellen`;
+
+            // Status badge — now also "Nicht vorhanden" for count=0
+            let statusBadge;
+            if (med.count === 0 && !isExpired) {
+                statusBadge = `<span style="display:inline-flex;align-items:center;gap:5px;background:#f3f4f6;color:#374151;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;flex-shrink:0;border:1px solid #d1d5db;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>Nicht vorh.</span>`;
+            } else if (isExpired) {
+                statusBadge = `<span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;flex-shrink:0;border:1px solid #fca5a5;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>Abgelaufen</span>`;
+            } else if (status.label === 'Läuft bald ab') {
+                statusBadge = `<span style="display:inline-flex;align-items:center;gap:5px;background:#ffedd5;color:#c2410c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;flex-shrink:0;border:1px solid #fdba74;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg>Bald ab</span>`;
+            } else {
+                statusBadge = `<span style="display:inline-flex;align-items:center;gap:5px;background:#d1fae5;color:#065f46;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;flex-shrink:0;border:1px solid #6ee7b7;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Haltbar</span>`;
+            }
+
+            card.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+                    <div style="flex:1;min-width:0;padding-right:10px;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                            ${med.mustHave ? `<span style="display:inline-flex;align-items:center;gap:3px;background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.03em;flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Basis</span>` : ''}
+                            <span style="font-weight:700;font-size:15px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${med.name}</span>
+                        </div>
+                        <span style="${countStyle}font-size:12px;">${med.count} Stück übrig</span>
+                    </div>
+                    ${isExpired
+                        ? `<span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;letter-spacing:0.02em;flex-shrink:0;border:1px solid #fca5a5;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>Abgelaufen</span>`
+                        : status.label === 'Läuft bald ab'
+                            ? `<span style="display:inline-flex;align-items:center;gap:5px;background:#ffedd5;color:#c2410c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;letter-spacing:0.02em;flex-shrink:0;border:1px solid #fdba74;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg>Bald ab</span>`
+                            : `<span style="display:inline-flex;align-items:center;gap:5px;background:#d1fae5;color:#065f46;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;letter-spacing:0.02em;flex-shrink:0;border:1px solid #6ee7b7;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Haltbar</span>`
+                    }
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.05);">
+                    ${!isExpired ? `<button class="pill-btn" onclick="takePill(${med.id})" style="background:var(--teal);color:white;"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>Nehmen</button>` : ''}
+                    <button class="pill-btn" onclick="showBeipackzettel('${med.name}')" style="background:#eff6ff;color:#2563eb;"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Beipackzettel</button>
+                    ${(isExpired || isLow) ? `<button class="pill-btn order-btn-${med.id}" onclick="toggleOrder(${med.id}, '${med.name.replace(/'/g,"\\'")}', this)" style="background:#f0faf8;color:var(--teal-dark);border:1.5px solid var(--teal-mid);"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Bestellen</button>` : ''}
+                    ${isExpired ? `<button class="pill-btn" onclick="showModal('Entsorgungs-Guide','Bitte sicher bei der nächsten Apotheke zur fachgerechten Vernichtung abgeben.')" style="background:#fef2f2;color:#dc2626;">Entsorgen</button>` : ''}
+                </div>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+
+    // --- Bestellliste ---
+    let orderList = []; // [{id, name, reason}]
+
+    function toggleOrder(medId, medName, btn) {
+        const already = orderList.find(o => o.id === medId);
+        if (already) {
+            orderList = orderList.filter(o => o.id !== medId);
+            btn.style.background = '#f0faf8';
+            btn.style.color = 'var(--teal-dark)';
+            btn.style.borderColor = 'var(--teal-mid)';
+            btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Bestellen`;
+        } else {
+            const med = medications.find(m => m.id === medId);
+            const isExpired = getStatus(med.expiry).label === 'Abgelaufen';
+            const reason = isExpired ? 'Abgelaufen' : 'Wenig Vorrat';
+            orderList.push({ id: medId, name: medName, reason });
+            btn.style.background = 'var(--teal)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--teal)';
+            btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Vorgemerkt`;
+            // Small bounce feedback
+            btn.style.transform = 'scale(1.08)';
+            setTimeout(() => btn.style.transform = '', 200);
+        }
+        updateOrderBadge();
+    }
+
+    function updateOrderBadge() {
+        const badge = document.getElementById('orderBadge');
+        const count = orderList.length;
+        badge.textContent = count;
+        if (count > 0) {
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function renderOrderList() {
+        const listEl = document.getElementById('orderList');
+        const emptyEl = document.getElementById('orderEmpty');
+        const actionsEl = document.getElementById('orderActions');
+        const clearBtn = document.getElementById('clearOrderBtn');
+        const subtitle = document.getElementById('orderSubtitle');
+
+        subtitle.textContent = orderList.length === 0 ? '0 Artikel' : `${orderList.length} Artikel`;
+
+        if (orderList.length === 0) {
+            emptyEl.style.display = 'block';
+            actionsEl.style.display = 'none';
+            clearBtn.style.display = 'none';
+            listEl.innerHTML = '';
+            return;
+        }
+
+        emptyEl.style.display = 'none';
+        actionsEl.style.display = 'block';
+        clearBtn.style.display = 'flex';
+        listEl.innerHTML = '';
+
+        orderList.forEach((item, index) => {
+            const isExpired = item.reason === 'Abgelaufen';
+            const row = document.createElement('div');
+            row.style.cssText = 'background:white;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.05);border:1.5px solid rgba(0,0,0,0.05);animation:fadeUp 0.2s ease forwards;';
+            row.innerHTML = `
+                <div style="width:36px;height:36px;border-radius:10px;background:${isExpired ? '#fef2f2' : '#fff7ed'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" fill="none" stroke="${isExpired ? '#dc2626' : '#ea580c'}" viewBox="0 0 24 24">
+                        ${isExpired
+                            ? '<circle cx="12" cy="12" r="9" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="13" stroke-width="2.5"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>'}
+                    </svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+                    <div style="font-size:11px;font-weight:600;color:${isExpired ? '#dc2626' : '#ea580c'};margin-top:2px;">${item.reason}</div>
+                </div>
+                <button onclick="removeFromOrder(${item.id})" style="width:28px;height:28px;border-radius:8px;background:#f5f5f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#999;" onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='#f5f5f5';this.style.color='#999'">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            `;
+            listEl.appendChild(row);
+        });
+    }
+
+    function removeFromOrder(medId) {
+        orderList = orderList.filter(o => o.id !== medId);
+        updateOrderBadge();
+        renderOrderList();
+        // Reset button in schrank if visible
+        renderList(document.getElementById('searchInput').value);
+    }
+
+    function clearOrderList() {
+        orderList = [];
+        updateOrderBadge();
+        renderOrderList();
+        renderList(document.getElementById('searchInput').value);
+    }
+
+    function sendToPharmacy() {
+        const names = orderList.map(o => `<li style="padding:5px 0;border-bottom:1px solid #f5f5f5;font-weight:500;color:var(--text);">${o.name}</li>`).join('');
+        showModal('Bestellung gesendet',
+            `<div style="background:#f0faf8;border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;border:1px solid var(--teal-mid);">
+                <svg width="20" height="20" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span style="font-size:13px;font-weight:600;color:var(--teal-dark);">Erfolgreich an deine Apotheke übermittelt</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Folgende Artikel wurden bestellt:</p>
+            <ul style="list-style:none;padding:0;">${names}</ul>`
+        );
+    }
+
+    function takePill(id) {
+        let med = medications.find(m => m.id === id);
+        if (med && med.count > 0) { med.count--; renderList(document.getElementById('searchInput').value); }
+    }
+
+    function filterMeds() { renderList(document.getElementById('searchInput').value); }
+
+    function checkPill(btn, medName) {
+        btn.classList.add('checked');
+        btn.onclick = null;
+        setTimeout(() => showModal('Einnahme dokumentiert', `Super! Du hast <strong>${medName}</strong> eingenommen. ✅`), 300);
+    }
+
+    function simulateScanner() {
+        document.getElementById('medName').value = 'Paracetamol 500mg';
+        document.getElementById('medTags').value = 'Schmerz Fieber';
+        document.getElementById('medCount').value = '20';
+        let d = new Date(); d.setFullYear(d.getFullYear() + 1);
+        document.getElementById('medDate').value = d.toISOString().split('T')[0];
+        showModal('Scanner', '✅ Barcode erfolgreich gescannt. PZN erkannt.');
+    }
+
+    function toggleForm() { document.getElementById('addForm').classList.toggle('open'); }
+
+    function addMed() {
+        const name = document.getElementById('medName').value;
+        const tags = document.getElementById('medTags').value;
+        const count = document.getElementById('medCount').value;
+        const date = document.getElementById('medDate').value;
+        if (!name || !count || !date) return alert('Bitte fülle alle Felder aus!');
+        medications.push({ id: Date.now(), name, tags, count: parseInt(count), expiry: date, mustHave: false });
+        ['medName','medTags','medCount','medDate'].forEach(id => document.getElementById(id).value = '');
+        toggleForm();
+        setFilter('all');
+    }
+
+    function showModal(title, content) {
+        document.getElementById('modalTitle').innerHTML = title;
+        document.getElementById('modalContent').innerHTML = content;
+        document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('nav-' + tabId).classList.add('active');
+
+        const searchBox = document.getElementById('searchContainer');
+        if (tabId === 'schrank') {
+            searchBox.style.maxHeight = '120px'; searchBox.style.opacity = '1';
+        } else {
+            searchBox.style.maxHeight = '0'; searchBox.style.opacity = '0';
+        }
+        document.getElementById('fabBtn').style.display = (tabId === 'schrank') ? 'flex' : 'none';
+
+        if (tabId === 'bestellung') renderOrderList();
+    }
+
+    renderList();
+</script>
+</body>
+</html>
