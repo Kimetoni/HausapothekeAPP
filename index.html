@@ -185,7 +185,6 @@
         <div class="header-bg" style="padding: 20px 20px 14px; border-radius: 0 0 26px 26px; box-shadow: 0 4px 20px rgba(13,92,83,0.3); z-index: 30; position: relative;">
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <svg width="36" height="36" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
                         <path d="M28 6 L52 26 L52 50 Q52 52 50 52 L6 52 Q4 52 4 50 L4 26 Z" fill="#2ab3a3"/>
@@ -471,7 +470,7 @@
                                 scrolling="no" 
                                 marginheight="0" 
                                 marginwidth="0" 
-                                src="https://maps.google.com/maps?q=Zugerstrasse%2012,%206330%20Cham&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                                src="https://maps.google.com/maps?q=Apotheke+Cham&t=&z=14&ie=UTF8&iwloc=&output=embed">
                             </iframe>
                             <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;box-shadow:inset 0 0 10px rgba(0,0,0,0.1);"></div>
                         </div>
@@ -859,6 +858,7 @@
         ramipril:    {wirkstoff:'Ramipril',indikation:'Bluthochdruck, Herzinsuffizienz.',dosierung:'2,5–10 mg täglich nach ärztlicher Verordnung.',hinweis:'Regelmässige Blutdruckkontrolle erforderlich.',einheit:'Tabletten',rezept:true,url:'https://compendium.ch/search?q=ramipril'},
     };
 
+    // Compendium search (simulated)
     let compSearchTimeout = null;
     function searchCompendium(query) {
         const resultsEl = document.getElementById('compResults');
@@ -955,6 +955,13 @@
         renderList(document.getElementById('searchInput').value);
     }
 
+    // ── Pharmacies ─────────────────────────────────────────────────
+    const pharmacies = [
+        {id:0,name:'Apotheke Cham',address:'Zugerstrasse 12, 6330 Cham',distance:'0.3 km',open:true,isDefault:true},
+        {id:1,name:'Bahnhof Apotheke',address:'Bahnhofplatz 2, 6330 Cham',distance:'0.8 km',open:true,isDefault:false},
+        {id:2,name:'Amavita Zug',address:'Grabenstrasse 4, 6300 Zug',distance:'3.2 km',open:false,isDefault:false},
+    ];
+
     // ── Order list state ───────────────────────────────────────────
     let orderList = [];
 
@@ -972,6 +979,51 @@
         else if (currentFilter==='empty') meds = meds.filter(m=>m.count === 0);
 
         meds.sort((a,b)=>a.mustHave===b.mustHave?0:a.mustHave?-1:1);
+
+        // Empty state for Schrank
+        if (meds.length === 0) {
+            let emptyHtml = `
+                <div style="text-align:center;padding:24px 16px;">
+                    <div style="width:64px;height:64px;background:var(--teal-light);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                        <svg width="30" height="30" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">Kein Medikament gefunden</div>
+                    <div style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:24px;">Wir konnten kein passendes Medikament in deinem Schrank finden.</div>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Apotheken in der Nähe</div>
+                    <div style="border-radius:16px;overflow:hidden;height:140px;position:relative;margin-bottom:10px;border:1.5px solid #e5eded;background:#e5e7eb;">
+                        <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=Apotheke+Cham&t=&z=14&ie=UTF8&iwloc=&output=embed"></iframe>
+                        <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;box-shadow:inset 0 0 10px rgba(0,0,0,0.1);"></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:7px;">
+            `;
+
+            pharmacies.forEach(p => {
+                emptyHtml += `
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:13px;border:1.5px solid #e5eded;background:white;">
+                        <div style="width:32px;height:32px;border-radius:9px;background:#f0f5f4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="15" height="15" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:700;font-size:13px;color:var(--text);display:flex;align-items:center;gap:4px;">
+                                ${p.name}${p.isDefault?'<span style="font-size:9px;font-weight:800;background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;">STAMM</span>':''}
+                            </div>
+                            <div style="font-size:11px;color:var(--text-muted);">${p.distance} · ${p.address.split(',')[0]}</div>
+                        </div>
+                        <span style="font-size:10px;font-weight:700;color:${p.open?'#059669':'#dc2626'};background:${p.open?'#d1fae5':'#fee2e2'};padding:2px 7px;border-radius:10px;">${p.open?'Offen':'Geschl.'}</span>
+                    </div>
+                `;
+            });
+
+            emptyHtml += `
+                    </div>
+                </div>
+            `;
+            listEl.innerHTML = emptyHtml;
+            return;
+        }
 
         meds.forEach(med => {
             const status = getStatus(med.expiry);
@@ -1137,11 +1189,6 @@
     }
 
     // ── Pharmacies ─────────────────────────────────────────────────
-    const pharmacies = [
-        {id:0,name:'Apotheke Cham',address:'Zugerstrasse 12, 6330 Cham',distance:'0.3 km',open:true,isDefault:true},
-        {id:1,name:'Bahnhof Apotheke',address:'Bahnhofplatz 2, 6330 Cham',distance:'0.8 km',open:true,isDefault:false},
-        {id:2,name:'Amavita Zug',address:'Grabenstrasse 4, 6300 Zug',distance:'3.2 km',open:false,isDefault:false},
-    ];
     let selectedPharmacyId = 0;
 
     function selectPharmacy(id) {
@@ -1154,7 +1201,7 @@
         const mapFrame = document.getElementById('gmapIframe');
         if(mapFrame && p) {
             const query = encodeURIComponent(p.name + ', ' + p.address);
-            mapFrame.src = `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            mapFrame.src = `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
         }
     }
 
