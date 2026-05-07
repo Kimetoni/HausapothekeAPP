@@ -20,6 +20,7 @@
             --danger: #e05252;
             --warn: #e8943a;
             --success: #2db88a;
+            --empty: #7c3aed;
         }
 
         * { box-sizing: border-box; }
@@ -50,19 +51,17 @@
         .med-card {
             background: white;
             border-radius: 18px;
-            padding: 18px;
+            padding: 16px;
             margin-bottom: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
-            border: 1.5px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
             transition: box-shadow 0.2s ease, transform 0.2s ease;
         }
         .med-card:hover { box-shadow: 0 4px 20px rgba(26,158,143,0.12); transform: translateY(-1px); }
-        .med-card.expired { background: #fff8f8; border-color: rgba(224,82,82,0.2); }
-        .med-card.warning { background: #fffbf5; border-color: rgba(232,148,58,0.25); }
 
         .pill-btn {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 7px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 8px 6px; border-radius: 10px; font-size: 12px; font-weight: 700;
             transition: all 0.18s ease; cursor: pointer; border: none;
         }
         .pill-btn:hover { filter: brightness(0.93); transform: translateY(-1px); }
@@ -164,8 +163,6 @@
 
         .plan-card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
 
-        .network-card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; overflow: hidden; position: relative; }
-
         .teal-btn { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); color: white; border: none; padding: 13px; border-radius: 13px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; width: 100%; box-shadow: 0 3px 12px rgba(26,158,143,0.3); }
         .teal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,158,143,0.4); }
 
@@ -244,8 +241,8 @@
                         <button onclick="setFilter('expired', '⏳ Abgelaufen')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">
                             <span style="display:inline-flex;align-items:center;gap:8px;">⏳ Abgelaufen</span>
                         </button>
-                        <button onclick="setFilter('basis', '⭐️ Basis')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">
-                            <span style="display:inline-flex;align-items:center;gap:8px;">⭐️ Basis</span>
+                        <button onclick="setFilter('basis', '⭐️ Favoriten')" style="width:100%;text-align:left;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;" onmouseover="this.style.background='#f0faf8'" onmouseout="this.style.background='none'">
+                            <span style="display:inline-flex;align-items:center;gap:8px;">⭐️ Favoriten</span>
                         </button>
                     </div>
                 </div>
@@ -434,7 +431,6 @@
             </div>
 
             <div id="tab-bestellung" class="tab-content">
-
                 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;">
                     <div>
                         <div class="section-title">Bestellliste</div>
@@ -457,10 +453,8 @@
                 <div id="orderList"></div>
 
                 <div id="orderActions" style="display:none;">
-
                     <div style="margin-bottom:12px;">
                         <div style="font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Apotheke auswählen</div>
-
                         <div style="border-radius:16px;overflow:hidden;height:140px;position:relative;margin-bottom:10px;border:1.5px solid #e5eded;background:#e5e7eb;">
                             <iframe 
                                 id="gmapIframe" 
@@ -474,7 +468,6 @@
                             </iframe>
                             <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;box-shadow:inset 0 0 10px rgba(0,0,0,0.1);"></div>
                         </div>
-
                         <div id="pharmacyList" style="display:flex;flex-direction:column;gap:7px;"></div>
                     </div>
 
@@ -621,6 +614,17 @@
                             <div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:white;transition:all 0.2s;"></div>
                         </div>
                     </div>
+                    
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:13px;padding:13px 14px;border:1.5px solid #f0f0f0;">
+                        <div>
+                            <div style="font-weight:600;font-size:14px;color:var(--text);">Knapper Bestand</div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Warnung bei < 5 Stück</div>
+                        </div>
+                        <div onclick="toggleSetting(this)" style="width:44px;height:24px;border-radius:12px;background:var(--teal);cursor:pointer;position:relative;transition:background 0.2s;" data-on="true">
+                            <div style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:white;transition:all 0.2s;"></div>
+                        </div>
+                    </div>
+
                     <div style="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:13px;padding:13px 14px;border:1.5px solid #f0f0f0;">
                         <div>
                             <div style="font-weight:600;font-size:14px;color:var(--text);">Einnahme-Erinnerungen</div>
@@ -901,18 +905,28 @@
     function showBeipackzettel(medName) {
         const key = Object.keys(compendiumDB).find(k => medName.toLowerCase().includes(k));
         const d = key ? compendiumDB[key] : {wirkstoff:'Nicht lokal verfügbar',indikation:'Bitte im Compendium nachschlagen.',dosierung:'–',hinweis:'–',einheit:'–',rezept:false,url:`https://compendium.ch/search?q=${encodeURIComponent(medName)}`};
+        
+        const medObj = medications.find(m => m.name === medName);
+        const imageUrl = medObj && medObj.image ? medObj.image : `./images/default.jpg`;
+
         showModal(medName, `
+            <div style="margin-bottom: 16px; text-align: center;">
+                <img src="${imageUrl}" alt="${medName}" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5eded;" onerror="this.src='https://placehold.co/400x300/ffffff/1d8f81?text=${encodeURIComponent(medName)}&font=Montserrat'">
+            </div>
+            
             <a href="${d.url}" target="_blank" style="display:flex;align-items:center;gap:7px;background:var(--teal-light);border:1.5px solid var(--teal-mid);border-radius:12px;padding:11px 14px;margin-bottom:14px;text-decoration:none;">
                 <svg width="16" height="16" fill="none" stroke="var(--teal-dark)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 <span style="font-size:13px;font-weight:700;color:var(--teal-dark);">Im Compendium.ch öffnen</span>
                 <svg style="margin-left:auto;" width="12" height="12" fill="none" stroke="var(--teal)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"/></svg>
             </a>
+            
             <div style="background:#eff6ff;padding:13px;border-radius:12px;margin-bottom:12px;border:1px solid #dbeafe;">
                 <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Wirkstoff</div>
                 <div style="font-weight:700;color:var(--text);font-size:14px;">${d.wirkstoff}</div>
                 ${d.einheit ? `<div style="font-size:11px;color:#6b8880;margin-top:3px;">${d.einheit}</div>` : ''}
                 ${d.rezept ? `<div style="display:inline-flex;align-items:center;gap:4px;background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Rezeptpflichtig</div>` : `<div style="display:inline-flex;align-items:center;gap:4px;background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px;">✓ Rezeptfrei</div>`}
             </div>
+            
             <div style="margin-bottom:11px;">
                 <div style="font-size:10px;font-weight:800;color:#b0c4c0;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Indikation</div>
                 <div style="font-size:13px;color:#4a5e58;line-height:1.55;">${d.indikation}</div>
@@ -927,23 +941,23 @@
             </div>`);
     }
 
-    // ── Medications data ───────────────────────────────────────────
+    // ── Medications data (Updated for GitHub local images) ─────────
     let medications = [
-        {id:1,name:'Ibuprofen 400mg',tags:'Kopfschmerz Fieber Schmerz',count:12,expiry:'2027-10-15',mustHave:true,unit:'Filmtabletten 20 Stk.'},
-        {id:2,name:'L-Thyroxin 50µg',tags:'Schilddrüse',count:3,expiry:'2028-01-10',mustHave:false,unit:'Tabletten'}, 
-        {id:3,name:'Nasenspray Ratiopharm',tags:'Nase Schnupfen',count:1,expiry:'2023-11-20',mustHave:true,unit:'Sprühflasche 10 ml'},
-        {id:4,name:'Octenisept Desinfektion',tags:'Wunde Desinfektion',count:1,expiry:'2029-05-01',mustHave:true,unit:'Sprühflasche 50 ml'},
-        {id:5,name:'Bepanthen Wundsalbe',tags:'Wunde Haut',count:0,expiry:'2027-08-12',mustHave:true,unit:'Tube 30 g'},
-        {id:6,name:'Cetirizin',tags:'Allergie Heuschnupfen',count:20,expiry:'2026-04-01',mustHave:false,unit:'Filmtabletten'},
-        {id:7,name:'Kohletabletten',tags:'Durchfall Magen',count:30,expiry:'2024-05-01',mustHave:true,unit:'Tabletten 50 Stk.'},
-        {id:8,name:'Aspirin Complex',tags:'Erkältung',count:5,expiry:'2025-10-10',mustHave:false,unit:'Brausetabletten'}
+        {id:1,name:'Ibuprofen 400mg',tags:'Kopfschmerz Fieber Schmerz',count:12,expiry:'2027-10-15',mustHave:true,unit:'Filmtabletten 20 Stk.', icon:'💊', image:'./images/ibuprofen.jpg'},
+        {id:2,name:'L-Thyroxin 50µg',tags:'Schilddrüse',count:3,expiry:'2028-01-10',mustHave:false,unit:'Tabletten', icon:'💊', image:'./images/thyroxin.jpg'}, 
+        {id:3,name:'Nasenspray Ratiopharm',tags:'Nase Schnupfen',count:1,expiry:'2023-11-20',mustHave:true,unit:'Sprühflasche 10 ml', icon:'💨', image:'./images/nasenspray.jpg'},
+        {id:4,name:'Octenisept Desinfektion',tags:'Wunde Desinfektion',count:1,expiry:'2029-05-01',mustHave:true,unit:'Sprühflasche 50 ml', icon:'🧴', image:'./images/octenisept.jpg'},
+        {id:5,name:'Bepanthen Wundsalbe',tags:'Wunde Haut',count:0,expiry:'2027-08-12',mustHave:true,unit:'Tube 30 g', icon:'🩹', image:'./images/bepanthen.jpg'},
+        {id:6,name:'Cetirizin',tags:'Allergie Heuschnupfen',count:20,expiry:'2026-04-01',mustHave:false,unit:'Filmtabletten', icon:'💊', image:'./images/cetirizin.jpg'},
+        {id:7,name:'Kohletabletten',tags:'Durchfall Magen',count:30,expiry:'2024-05-01',mustHave:true,unit:'Tabletten 50 Stk.', icon:'⚫', image:'./images/kohletabletten.jpg'},
+        {id:8,name:'Aspirin Complex',tags:'Erkältung',count:5,expiry:'2025-10-10',mustHave:false,unit:'Brausetabletten', icon:'🫧', image:'./images/aspirin.jpg'}
     ];
 
     function getStatus(expiryDate) {
         const diff = Math.ceil((new Date(expiryDate) - new Date()) / 86400000);
-        if (diff < 0) return {cardClass:'expired',label:'Abgelaufen'};
-        if (diff < 90) return {cardClass:'warning',label:'Läuft bald ab'};
-        return {cardClass:'',label:'Haltbar'};
+        if (diff < 0) return {label:'Abgelaufen'};
+        if (diff < 90) return {label:'Läuft bald ab'};
+        return {label:'Haltbar'};
     }
 
     function setFilter(filterType, labelText) {
@@ -954,13 +968,6 @@
         closeFilterDropdown();
         renderList(document.getElementById('searchInput').value);
     }
-
-    // ── Pharmacies ─────────────────────────────────────────────────
-    const pharmacies = [
-        {id:0,name:'Apotheke Cham',address:'Zugerstrasse 12, 6330 Cham',distance:'0.3 km',open:true,isDefault:true},
-        {id:1,name:'Bahnhof Apotheke',address:'Bahnhofplatz 2, 6330 Cham',distance:'0.8 km',open:true,isDefault:false},
-        {id:2,name:'Amavita Zug',address:'Grabenstrasse 4, 6300 Zug',distance:'3.2 km',open:false,isDefault:false},
-    ];
 
     // ── Order list state ───────────────────────────────────────────
     let orderList = [];
@@ -1027,46 +1034,58 @@
 
         meds.forEach(med => {
             const status = getStatus(med.expiry);
-            const isExpired = status.label==='Abgelaufen';
-            const isEmpty = med.count===0;
-            const isLow = med.count>0 && med.count<5;
-            const inOrder = orderList.some(o=>o.id===med.id);
+            const isExpired = status.label === 'Abgelaufen';
+            const isEmpty = med.count === 0;
+            const isLow = med.count > 0 && med.count < 5;
+            const inOrder = orderList.some(o=>o.id === med.id);
+
+            let cardClass = '';
+            if (isExpired) cardClass = 'expired';
+            else if (isEmpty) cardClass = 'empty';
+            else if (isLow) cardClass = 'warning';
 
             const card = document.createElement('div');
-            card.className = `med-card ${isEmpty&&!isExpired?'':status.cardClass}`;
-            if (isEmpty && !isExpired) card.style.cssText += ';background:#fafafa;border-color:rgba(124,58,237,0.2);';
+            card.className = `med-card ${cardClass}`;
 
-            let badge;
-            if (isEmpty && !isExpired) badge = `<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f3ff;color:#7c3aed;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid #ddd6fe;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 21H3M21 3L3 21"/></svg>Leer</span>`;
-            else if (isExpired) badge = `<span style="display:inline-flex;align-items:center;gap:4px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid #fca5a5;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>Abgelaufen</span>`;
-            else if (isLow) badge = `<span style="display:inline-flex;align-items:center;gap:4px;background:#ffedd5;color:#c2410c;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid #fdba74;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="1" fill="currentColor" stroke="none"/></svg>Knapp</span>`;
-            else badge = `<span style="display:inline-flex;align-items:center;gap:4px;background:#d1fae5;color:#065f46;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid #6ee7b7;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Haltbar</span>`;
+            let dotColor = 'var(--success)';
+            if (isEmpty) dotColor = 'var(--empty)';
+            else if (isExpired) dotColor = 'var(--danger)';
+            else if (isLow) dotColor = 'var(--warn)';
 
-            let countStyle = isEmpty ? 'color:#7c3aed;font-weight:700;' : isLow ? 'color:#ea580c;font-weight:700;' : 'color:var(--text-muted);';
+            let countStyle = isEmpty ? 'color:var(--empty);font-weight:700;' : isLow ? 'color:var(--warn);font-weight:700;' : isExpired ? 'color:var(--danger);font-weight:700;' : 'color:var(--text-muted);';
             const orderStyle = inOrder ? 'background:var(--teal);color:white;border:1.5px solid var(--teal);' : 'background:#f0faf8;color:var(--teal-dark);border:1.5px solid var(--teal-mid);';
             const orderLabel = inOrder
                 ? `<svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>Vorgemerkt`
                 : `<svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Bestellen`;
 
+            // Fehlerbehandlung für Bilder (falls lokales Bild fehlt, lade Platzhalter)
+            const fallbackImage = `https://placehold.co/400x300/ffffff/1d8f81?text=${encodeURIComponent(med.name.split(' ')[0])}&font=Montserrat`;
+
             card.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-                    <div style="flex:1;min-width:0;padding-right:10px;">
-                        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px;">
-                            ${med.mustHave?`<span style="display:inline-flex;align-items:center;gap:3px;background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Basis</span>`:''}
-                            <span style="font-weight:700;font-size:15px;color:var(--text);">${med.name}</span>
+                    <div style="display:flex; gap:14px; flex:1; min-width:0;">
+                        <div style="width: 110px; height: 110px; border-radius: 12px; background: white; border: 1.5px solid #e5eded; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
+                            <img src="${med.image}" alt="${med.name}" onerror="this.src='${fallbackImage}'" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
-                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span style="${countStyle}font-size:12px;">${isEmpty?'Nicht vorhanden':med.count+' Stück übrig'}</span>
-                            ${med.unit?`<span style="font-size:11px;color:#b0c4c0;">· ${med.unit}</span>`:''}
+                        <div style="flex:1; min-width:0; padding-top:4px;">
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:${dotColor};flex-shrink:0;"></div>
+                                <span style="font-weight:700;font-size:16px;color:var(--text); line-height:1.2;">${med.name}</span>
+                                ${med.mustHave?`<svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308" stroke="#eab308" stroke-width="2" style="flex-shrink:0;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`:''}
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap; margin-bottom: 4px;">
+                                <span style="${countStyle}font-size:13px;">${isEmpty ? '0 Stück übrig' : med.count + ' Stück übrig'}</span>
+                            </div>
+                            <div style="font-size:11px;color:#b0c4c0;">${med.unit ? med.unit : ''}</div>
                         </div>
                     </div>
-                    ${badge}
                 </div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.05);">
-                    ${!isExpired&&!isEmpty?`<button class="pill-btn" onclick="takePill(${med.id})" style="background:var(--teal);color:white;"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>Nehmen</button>`:''}
-                    <button class="pill-btn" onclick="showBeipackzettel('${med.name}')" style="background:#eff6ff;color:#2563eb;"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Beipackzettel</button>
+                
+                <div style="display:grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap:8px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.05); margin-top:8px;">
+                    ${!isExpired && !isEmpty ? `<button class="pill-btn" onclick="takePill(${med.id})" style="background:var(--teal);color:white;"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>Nehmen</button>` : ''}
+                    ${isExpired ? `<button class="pill-btn" onclick="showModal('Entsorgungs-Guide','Bitte bei der Apotheke zur fachgerechten Entsorgung abgeben.')" style="background:#fef2f2;color:#dc2626;">Entsorgen</button>` : ''}
+                    <button class="pill-btn" onclick="showBeipackzettel('${med.name}')" style="background:#eff6ff;color:#2563eb;"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Info</button>
                     <button class="pill-btn order-btn-${med.id}" onclick="toggleOrder(${med.id},'${med.name.replace(/'/g,"\\'")}',this)" style="${orderStyle}">${orderLabel}</button>
-                    ${isExpired?`<button class="pill-btn" onclick="showModal('Entsorgungs-Guide','Bitte bei der Apotheke zur fachgerechten Entsorgung abgeben.')" style="background:#fef2f2;color:#dc2626;">Entsorgen</button>`:''}
                 </div>`;
             listEl.appendChild(card);
         });
@@ -1189,6 +1208,11 @@
     }
 
     // ── Pharmacies ─────────────────────────────────────────────────
+    const pharmacies = [
+        {id:0,name:'Apotheke Cham',address:'Zugerstrasse 12, 6330 Cham',distance:'0.3 km',open:true,isDefault:true},
+        {id:1,name:'Bahnhof Apotheke',address:'Bahnhofplatz 2, 6330 Cham',distance:'0.8 km',open:true,isDefault:false},
+        {id:2,name:'Amavita Zug',address:'Grabenstrasse 4, 6300 Zug',distance:'3.2 km',open:false,isDefault:false},
+    ];
     let selectedPharmacyId = 0;
 
     function selectPharmacy(id) {
@@ -1416,7 +1440,7 @@
         const count=document.getElementById('medCount').value;
         const date=document.getElementById('medDate').value;
         if(!name||!count||!date) return alert('Bitte Name, Stückzahl und Datum ausfüllen!');
-        medications.push({id:Date.now(),name,tags,count:parseInt(count),expiry:date,mustHave:false,unit});
+        medications.push({id:Date.now(),name,tags,count:parseInt(count),expiry:date,mustHave:false,unit,icon:'💊',image:`./images/default.jpg`});
         ['compSearchInput','medName','medUnit','medTags','medCount','medDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
         document.getElementById('compendiumLink').style.display='none';
         toggleForm();
