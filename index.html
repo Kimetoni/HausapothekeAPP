@@ -907,7 +907,7 @@
         const d = key ? compendiumDB[key] : {wirkstoff:'Nicht lokal verfügbar',indikation:'Bitte im Compendium nachschlagen.',dosierung:'–',hinweis:'–',einheit:'–',rezept:false,url:`https://compendium.ch/search?q=${encodeURIComponent(medName)}`};
         
         const medObj = medications.find(m => m.name === medName);
-        const imageUrl = medObj && medObj.image ? medObj.image : `./images/default.jpg`;
+        const imageUrl = medObj && medObj.image ? medObj.image : `.//default.jpg`;
 
         showModal(medName, `
             <div style="margin-bottom: 16px; text-align: center;">
@@ -943,14 +943,14 @@
 
     // ── Medications data (Updated for GitHub local images) ─────────
     let medications = [
-        {id:1,name:'Ibuprofen 400mg',tags:'Kopfschmerz Fieber Schmerz',count:12,expiry:'2027-10-15',mustHave:true,unit:'Filmtabletten 20 Stk.', icon:'💊', image:'./images/ibuprofen.jpg'},
+        {id:1,name:'Ibuprofen 400mg',tags:'Kopfschmerz Fieber Schmerz',count:12,expiry:'2027-10-15',mustHave:true,unit:'Filmtabletten 20 Stk.', icon:'💊', image:'./ibuprofen.jpg'},
         {id:2,name:'L-Thyroxin 50µg',tags:'Schilddrüse',count:3,expiry:'2028-01-10',mustHave:false,unit:'Tabletten', icon:'💊', image:'./images/thyroxin.jpg'}, 
-        {id:3,name:'Nasenspray Ratiopharm',tags:'Nase Schnupfen',count:1,expiry:'2023-11-20',mustHave:true,unit:'Sprühflasche 10 ml', icon:'💨', image:'./images/nasenspray.jpg'},
-        {id:4,name:'Octenisept Desinfektion',tags:'Wunde Desinfektion',count:1,expiry:'2029-05-01',mustHave:true,unit:'Sprühflasche 50 ml', icon:'🧴', image:'./images/octenisept.jpg'},
-        {id:5,name:'Bepanthen Wundsalbe',tags:'Wunde Haut',count:0,expiry:'2027-08-12',mustHave:true,unit:'Tube 30 g', icon:'🩹', image:'./images/bepanthen.jpg'},
-        {id:6,name:'Cetirizin',tags:'Allergie Heuschnupfen',count:20,expiry:'2026-04-01',mustHave:false,unit:'Filmtabletten', icon:'💊', image:'./images/cetirizin.jpg'},
-        {id:7,name:'Kohletabletten',tags:'Durchfall Magen',count:30,expiry:'2024-05-01',mustHave:true,unit:'Tabletten 50 Stk.', icon:'⚫', image:'./images/kohletabletten.jpg'},
-        {id:8,name:'Aspirin Complex',tags:'Erkältung',count:5,expiry:'2025-10-10',mustHave:false,unit:'Brausetabletten', icon:'🫧', image:'./images/aspirin.jpg'}
+        {id:3,name:'Nasenspray Ratiopharm',tags:'Nase Schnupfen',count:1,expiry:'2023-11-20',mustHave:true,unit:'Sprühflasche 10 ml', icon:'💨', image:'./nasenspray.jpg'},
+        {id:4,name:'Octenisept Desinfektion',tags:'Wunde Desinfektion',count:1,expiry:'2029-05-01',mustHave:true,unit:'Sprühflasche 50 ml', icon:'🧴', image:'./octenisept.jpg'},
+        {id:5,name:'Bepanthen Wundsalbe',tags:'Wunde Haut',count:0,expiry:'2027-08-12',mustHave:true,unit:'Tube 30 g', icon:'🩹', image:'./bepanthen.jpg'},
+        {id:6,name:'Cetirizin',tags:'Allergie Heuschnupfen',count:20,expiry:'2026-04-01',mustHave:false,unit:'Filmtabletten', icon:'💊', image:'./cetirizin.jpg'},
+        {id:7,name:'Kohletabletten',tags:'Durchfall Magen',count:30,expiry:'2024-05-01',mustHave:true,unit:'Tabletten 50 Stk.', icon:'⚫', image:'./kohletabletten.jpg'},
+        {id:8,name:'Aspirin Complex',tags:'Erkältung',count:5,expiry:'2025-10-10',mustHave:false,unit:'Brausetabletten', icon:'🫧', image:'./aspirin.jpg'}
     ];
 
     function getStatus(expiryDate) {
